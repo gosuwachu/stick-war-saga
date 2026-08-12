@@ -31,30 +31,31 @@ function startBattle() {
   updateHUD();
 }
 
-function endBattle(winner) {
-  game.phase = 'transition';
-  game.transitionTimer = 3;
-  if (game.mode === 'pvp') {
-    if (winner === 'player') game.pvpScore.p1++;
-    else game.pvpScore.p2++;
-    if (game.pvpRound >= game.pvpMaxRounds) {
-      const matchWinner = game.pvpScore.p1 > game.pvpScore.p2 ? 'Player 1' : 'Player 2';
-      showBanner(matchWinner + ' WINS THE MATCH!', game.pvpScore.p1 + ' - ' + game.pvpScore.p2, '#ffd700');
+function endBattle(winner, state) {
+  state = state || game;
+  state.phase = 'transition';
+  state.transitionTimer = 3;
+  if (state.mode === 'pvp') {
+    if (winner === 'player') state.pvpScore.p1++;
+    else state.pvpScore.p2++;
+    if (state.pvpRound >= state.pvpMaxRounds) {
+      const matchWinner = state.pvpScore.p1 > state.pvpScore.p2 ? 'Player 1' : 'Player 2';
+      if (typeof showBanner !== 'undefined') showBanner(matchWinner + ' WINS THE MATCH!', state.pvpScore.p1 + ' - ' + state.pvpScore.p2, '#ffd700');
     } else {
-      showBanner('ROUND ' + game.pvpRound + ' COMPLETE', 'Player ' + (winner === 'player' ? '1' : '2') + ' wins  (' + game.pvpScore.p1 + '-' + game.pvpScore.p2 + ')', '#64b5f6');
+      if (typeof showBanner !== 'undefined') showBanner('ROUND ' + state.pvpRound + ' COMPLETE', 'Player ' + (winner === 'player' ? '1' : '2') + ' wins  (' + state.pvpScore.p1 + '-' + state.pvpScore.p2 + ')', '#64b5f6');
     }
-    game.pvpRound++;
+    state.pvpRound++;
   } else {
     if (winner === 'player') {
-      const bonus = 80 + game.wave * 20;
-      game.player.gold += bonus;
-      game.player.units.forEach(u => { u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.3); });
-      showBanner('VICTORY', 'Wave ' + game.wave + ' cleared! +' + bonus + ' gold', '#81c784');
+      const bonus = 80 + state.wave * 20;
+      state.player.gold += bonus;
+      state.player.units.forEach(u => { u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.3); });
+      if (typeof showBanner !== 'undefined') showBanner('VICTORY', 'Wave ' + state.wave + ' cleared! +' + bonus + ' gold', '#81c784');
     } else {
-      showBanner('DEFEAT', 'Your army has fallen...', '#ff8a80');
+      if (typeof showBanner !== 'undefined') showBanner('DEFEAT', 'Your army has fallen...', '#ff8a80');
     }
   }
-  updateHUD();
+  if (typeof updateHUD !== 'undefined') updateHUD();
 }
 
 function showBanner(title, sub, color) {
@@ -69,27 +70,28 @@ function showBanner(title, sub, color) {
 // ====================================================================
 //  ENEMY WAVE / ROUND RESET
 // ====================================================================
-function spawnEnemyWave() {
-  if (game.mode === 'pvp') {
-    game.enemy.gold = 400;
-    game.enemy.income = 0;
-    game.enemy.units = [];
+function spawnEnemyWave(state, waveOverride) {
+  state = state || game;
+  if (state.mode === 'pvp') {
+    state.enemy.gold = 400;
+    state.enemy.income = 0;
+    state.enemy.units = [];
     for (let i = 0; i < 3; i++) {
-      game.enemy.units.push(createUnit('Miner', 'enemy', 0, 0));
+      state.enemy.units.push(createUnit('Miner', 'enemy', 0, 0));
     }
   } else {
-    const wave = game.wave;
+    const wave = waveOverride !== undefined ? waveOverride : state.wave;
     const startingGold = 150 + wave * 80;
-    game.enemy.gold = startingGold;
-    game.enemy.income = 0;
-    game.enemy.units = [];
+    state.enemy.gold = startingGold;
+    state.enemy.income = 0;
+    state.enemy.units = [];
     const minerCount = Math.min(2 + Math.floor(wave / 2), 8);
     for (let i = 0; i < minerCount; i++) {
-      game.enemy.units.push(createUnit('Miner', 'enemy', 0, 0));
+      state.enemy.units.push(createUnit('Miner', 'enemy', 0, 0));
     }
   }
-  updateHUD();
-  startPrep();
+  if (typeof updateHUD !== 'undefined') updateHUD();
+  if (typeof startPrep !== 'undefined') startPrep();
 }
 
 function resetPvPRound() {

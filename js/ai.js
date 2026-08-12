@@ -14,12 +14,14 @@ function aiUpdate(dt) {
   }
 }
 
-function aiBuyUnit() {
-  const affordable = UNIT_ORDER.filter(t => t !== 'Miner' && UNIT_TYPES[t].cost <= game.enemy.gold);
+function aiBuyUnit(state, wave) {
+  state = state || game;
+  wave = wave || state.wave;
+  const affordable = UNIT_ORDER.filter(t => t !== 'Miner' && UNIT_TYPES[t].cost <= state.enemy.gold);
   if (affordable.length === 0) return;
 
   const counts = {};
-  game.enemy.units.forEach(u => { counts[u.type] = (counts[u.type] || 0) + 1; });
+  state.enemy.units.forEach(u => { counts[u.type] = (counts[u.type] || 0) + 1; });
 
   let weights = affordable.map(t => {
     let w = 1;
@@ -27,10 +29,10 @@ function aiBuyUnit() {
     if (count > 3) w *= 0.3;
     if (count > 5) w *= 0.2;
     if (count === 0) w *= 2;
-    if (t === 'Giant' && game.wave > 3) w *= 1.5;
-    if (t === 'Mage' && game.wave > 2) w *= 1.3;
+    if (t === 'Giant' && wave > 3) w *= 1.5;
+    if (t === 'Mage' && wave > 2) w *= 1.3;
     if (t === 'Archer') w *= 1.2;
-    if (t === 'Knight' && game.wave > 2) w *= 1.4;
+    if (t === 'Knight' && wave > 2) w *= 1.4;
     return w;
   });
 
@@ -42,10 +44,10 @@ function aiBuyUnit() {
     if (r <= 0) { chosen = affordable[i]; break; }
   }
 
-  if (UNIT_TYPES[chosen].cost <= game.enemy.gold) {
-    game.enemy.gold -= UNIT_TYPES[chosen].cost;
+  if (UNIT_TYPES[chosen].cost <= state.enemy.gold) {
+    state.enemy.gold -= UNIT_TYPES[chosen].cost;
     const u = createUnit(chosen, 'enemy', W * 0.90 + rand(-15, 15), GROUND_Y - 10 + rand(-3, 3));
-    game.enemy.units.push(u);
-    updateHUD();
+    state.enemy.units.push(u);
+    if (typeof updateHUD !== 'undefined') updateHUD();
   }
 }

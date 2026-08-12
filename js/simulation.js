@@ -1,24 +1,25 @@
 // ====================================================================
 //  ECONOMY
 // ====================================================================
-function updateEconomy(dt) {
+function updateEconomy(dt, state) {
+  state = state || game;
   let pIncome = 0;
-  game.player.units.forEach(u => { if (u.isMiner && u.state !== 'dead' && u.state !== 'dying') pIncome += u.income; });
+  state.player.units.forEach(u => { if (u.isMiner && u.state !== 'dead' && u.state !== 'dying') pIncome += u.income; });
   let eIncome = 0;
-  game.enemy.units.forEach(u => { if (u.isMiner && u.state !== 'dead' && u.state !== 'dying') eIncome += u.income; });
+  state.enemy.units.forEach(u => { if (u.isMiner && u.state !== 'dead' && u.state !== 'dying') eIncome += u.income; });
 
-  game.player.income = pIncome;
-  game.enemy.income = eIncome;
+  state.player.income = pIncome;
+  state.enemy.income = eIncome;
 
-  if (game.phase === 'prep') {
-    game.player.gold += pIncome * dt;
-    game.enemy.gold += eIncome * dt;
-  } else if (game.phase === 'battle') {
-    game.player.gold += pIncome * dt * 0.3;
-    game.enemy.gold += eIncome * dt * 0.3;
+  if (state.phase === 'prep') {
+    state.player.gold += pIncome * dt;
+    state.enemy.gold += eIncome * dt;
+  } else if (state.phase === 'battle') {
+    state.player.gold += pIncome * dt * 0.3;
+    state.enemy.gold += eIncome * dt * 0.3;
   }
 
-  updateHUD();
+  if (typeof updateHUD !== 'undefined') updateHUD();
 }
 
 // ====================================================================
@@ -138,25 +139,26 @@ function updateUnits(dt) {
 // ====================================================================
 //  COMBAT END CHECK
 // ====================================================================
-function checkBattleEnd() {
-  const pAlive = game.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
-  const eAlive = game.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
-  const pAll = game.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
-  const eAll = game.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
+function checkBattleEnd(state) {
+  state = state || game;
+  const pAlive = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
+  const eAlive = state.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
+  const pAll = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
+  const eAll = state.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
 
-  if (game.phase === 'battle') {
+  if (state.phase === 'battle') {
     if (pAll === 0) {
-      endBattle('enemy');
+      if (typeof endBattle !== 'undefined') endBattle('enemy');
       return true;
     }
     if (eAll === 0) {
-      endBattle('player');
+      if (typeof endBattle !== 'undefined') endBattle('player');
       return true;
     }
     if (pAlive === 0 && eAlive === 0) {
       if (pAll > 0 && eAll > 0) {
-        game.player.units.forEach(u => { if (u.isMiner && u.state !== 'dead') u.state = 'marching'; });
-        game.enemy.units.forEach(u => { if (u.isMiner && u.state !== 'dead') u.state = 'marching'; });
+        state.player.units.forEach(u => { if (u.isMiner && u.state !== 'dead') u.state = 'marching'; });
+        state.enemy.units.forEach(u => { if (u.isMiner && u.state !== 'dead') u.state = 'marching'; });
       }
     }
   }
@@ -166,8 +168,9 @@ function checkBattleEnd() {
 // ====================================================================
 //  PROJECTILES
 // ====================================================================
-function spawnProjectile(source, target) {
-  game.projectiles.push({
+function spawnProjectile(source, target, state) {
+  state = state || game;
+  state.projectiles.push({
     x: source.x + source.dir * 10,
     y: source.y - 15,
     targetX: target.x,
@@ -179,14 +182,15 @@ function spawnProjectile(source, target) {
   });
 }
 
-function updateProjectiles(dt) {
-  for (let i = game.projectiles.length - 1; i >= 0; i--) {
-    const p = game.projectiles[i];
+function updateProjectiles(dt, state) {
+  state = state || game;
+  for (let i = state.projectiles.length - 1; i >= 0; i--) {
+    const p = state.projectiles[i];
     const dx = p.targetX - p.x;
     const dy = p.targetY - p.y;
     const d = Math.sqrt(dx*dx + dy*dy);
     if (d < 10 || p.life <= 0) {
-      game.projectiles.splice(i, 1);
+      state.projectiles.splice(i, 1);
       continue;
     }
     const move = p.speed * dt;
@@ -205,9 +209,10 @@ function updateProjectiles(dt) {
 // ====================================================================
 //  EFFECTS
 // ====================================================================
-function spawnHitEffect(x, y) {
+function spawnHitEffect(x, y, state) {
+  state = state || game;
   for (let i = 0; i < 5; i++) {
-    game.particles.push({
+    state.particles.push({
       x, y,
       vx: rand(-40, 40),
       vy: rand(-60, -10),
@@ -219,9 +224,10 @@ function spawnHitEffect(x, y) {
   }
 }
 
-function spawnHealEffect(x, y) {
+function spawnHealEffect(x, y, state) {
+  state = state || game;
   for (let i = 0; i < 4; i++) {
-    game.particles.push({
+    state.particles.push({
       x, y,
       vx: rand(-20, 20),
       vy: rand(-40, -20),
@@ -233,23 +239,25 @@ function spawnHealEffect(x, y) {
   }
 }
 
-function spawnFloatingText(x, y, text, color) {
-  game.floatingTexts.push({ x, y, text, color, life: 1, maxLife: 1 });
+function spawnFloatingText(x, y, text, color, state) {
+  state = state || game;
+  state.floatingTexts.push({ x, y, text, color, life: 1, maxLife: 1 });
 }
 
-function updateParticles(dt) {
-  for (let i = game.particles.length - 1; i >= 0; i--) {
-    const p = game.particles[i];
+function updateParticles(dt, state) {
+  state = state || game;
+  for (let i = state.particles.length - 1; i >= 0; i--) {
+    const p = state.particles[i];
     p.x += p.vx * dt;
     p.y += p.vy * dt;
     p.vy += 100 * dt;
     p.life -= dt;
-    if (p.life <= 0) game.particles.splice(i, 1);
+    if (p.life <= 0) state.particles.splice(i, 1);
   }
-  for (let i = game.floatingTexts.length - 1; i >= 0; i--) {
-    const f = game.floatingTexts[i];
+  for (let i = state.floatingTexts.length - 1; i >= 0; i--) {
+    const f = state.floatingTexts[i];
     f.y -= 30 * dt;
     f.life -= dt;
-    if (f.life <= 0) game.floatingTexts.splice(i, 1);
+    if (f.life <= 0) state.floatingTexts.splice(i, 1);
   }
 }

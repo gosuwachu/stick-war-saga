@@ -83,4 +83,21 @@ State machine: `idle` → `marching` → `attacking` → `dying` → `dead`
 - Unit positions snap to formation on wave start via `u.x = u.formationX`
 
 ## Testing
-Open in browser, play a round in both modes. Check console for errors.
+- **Manual**: Open `index.html` in a browser, play both modes. Check console for errors.
+- **Unit tests**: Run `npx vitest run` (63 tests across 9 files).
+- Test files live in `js/__tests__/` — they define pure-logic copies of key functions in `setup.js` (no DOM dependency).
+- No browser needed for tests — runs in Node via Vitest.
+
+## Test Coverage (63 tests)
+
+| File | Tests | What's tested |
+|------|-------|---------------|
+| `config.test.js` | 8 | All 8 unit types defined, costs > 0, HP > 0, keys complete |
+| `factory.test.js` | 10 | Unit object shape, flags, scales, dir, all 8 types |
+| `simulation-economy.test.js` | 5 | Income rate, multi-miner, battle rate, dead miners, both teams |
+| `simulation-combat.test.js` | 6 | Win detection, miner activation, phase guard |
+| `simulation-effects.test.js` | 9 | Projectile spawn/move/remove, particles, floating text |
+| `ai.test.js` | 4 | Affordability, no Miner buys, budget respect |
+| `phases.test.js` | 10 | PvP scoring, round advance, AI bonus gold, wave scaling |
+| `shop.test.js` | 6 | Team-specific deduction, phase guard, insufficient gold |
+| `formation.test.js` | 5 | Non-NaN positions, miner/combat separation, enemy mirroring |

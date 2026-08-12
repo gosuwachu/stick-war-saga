@@ -32,26 +32,27 @@ function buildShop() {
   });
 }
 
-function buyUnit(type, team) {
-  if (game.phase !== 'prep') return;
+function buyUnit(type, team, state) {
+  state = state || game;
+  if (state.phase !== 'prep') return;
   const def = UNIT_TYPES[type];
-  const gold = team === 'player' ? game.player.gold : game.enemy.gold;
-  const units = team === 'player' ? game.player.units : game.enemy.units;
+  const gold = team === 'player' ? state.player.gold : state.enemy.gold;
+  const units = team === 'player' ? state.player.units : state.enemy.units;
   if (gold < def.cost) return;
 
   if (team === 'player') {
-    game.player.gold -= def.cost;
+    state.player.gold -= def.cost;
   } else {
-    game.enemy.gold -= def.cost;
+    state.enemy.gold -= def.cost;
   }
   const u = createUnit(type, team, 0, 0);
   units.push(u);
-  updateFormationPositions();
+  if (typeof updateFormationPositions !== 'undefined') updateFormationPositions();
   u.x = u.formationX;
   u.y = u.formationY;
-  updateShop();
-  updateHUD();
-  updateArmyPreview();
+  if (typeof updateShop !== 'undefined') updateShop();
+  if (typeof updateHUD !== 'undefined') updateHUD();
+  if (typeof updateArmyPreview !== 'undefined') updateArmyPreview();
 }
 
 function updateShop() {
