@@ -60,17 +60,9 @@
   <h1 id="game-over-title">Game Over</h1>
   <p id="game-over-sub">You were overwhelmed on</p>
   <div class="score" id="final-wave">Wave 1</div>
-  <button type="button" onclick="startGame(game.mode)">Play Again</button>
+  <button type="button" onclick="window.startGame(window.game ? window.game.mode : 'ai')">Play Again</button>
 </div>
 
-<script src="js/config.js"></script>
-<script src="js/factory.js"></script>
-<script src="js/shop.js"></script>
-<script src="js/ai.js"></script>
-<script src="js/phases.js"></script>
-<script src="js/simulation.js"></script>
-<script src="js/render.js"></script>
-<script src="js/input.js"></script>
-<script src="js/main.js"></script>
+<script type="module" src="js/main.ts"></script>
 </body>
 </html>

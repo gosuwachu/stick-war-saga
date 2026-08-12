@@ -110,10 +110,12 @@ function startGame(mode: 'ai' | 'pvp'): void {
 declare global {
   interface Window {
     startGame: typeof startGame;
+    game: typeof game;
   }
 }
 
 window.startGame = startGame;
+window.game = game;
 
 buildShop();
 requestAnimationFrame(gameLoop);
