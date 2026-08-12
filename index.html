@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stick War Saga</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="game-wrapper">
+  <div id="canvas-area">
+    <canvas id="gameCanvas"></canvas>
+    <div id="hud">
+      <div class="hud-left">
+        <div class="hud-item" id="hud-p1-gold"><div class="label">P1 Gold</div><div class="value gold-value" id="hud-gold">400</div></div>
+        <div class="hud-item" id="hud-p1-army"><div class="label">P1 Army</div><div class="value" id="hud-army" style="color:#81c784;">3</div></div>
+      </div>
+      <div class="hud-center">
+        <div class="hud-item"><div class="label" id="hud-phase-label">Prep</div><div class="value timer-value" id="hud-timer">25</div></div>
+        <div class="hud-item" id="hud-wave-item"><div class="label">Wave</div><div class="value wave-value" id="hud-wave">1</div></div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-item" id="hud-p2-army"><div class="label">P2 Army</div><div class="value" id="hud-enemy-army" style="color:#ef5350;">0</div></div>
+        <div class="hud-item" id="hud-p2-gold"><div class="label">P2 Gold</div><div class="value gold-value" id="hud-enemy-gold">0</div></div>
+      </div>
+    </div>
+    <div id="banner"><h1 id="banner-title"></h1><p id="banner-sub"></p></div>
+    <div id="army-preview"></div>
+  </div>
+  <div id="shop-panel">
+    <div id="shop-header"><h2>Unit Shop</h2><p id="shop-phase-status">Prepare your army</p></div>
+    <div id="shop-units"></div>
+    <div id="shop-info">
+      <span class="total-units" id="shop-total">0 units</span>
+      <span class="income" id="shop-income">+0g/s</span>
+    </div>
+  </div>
+</div>
+
+<div id="mode-select">
+  <h1>Stick War Saga</h1>
+  <div class="subtitle">Choose your game mode</div>
+  <div class="btn-row">
+    <button onclick="startGame('ai')">
+      <span class="mode-icon">&#9876;</span>
+      <span class="mode-label">Player vs AI</span>
+      <div class="mode-desc">Endless waves against computer</div>
+    </button>
+    <button onclick="startGame('pvp')">
+      <span class="mode-icon">&#9881;</span>
+      <span class="mode-label">Player vs Player</span>
+      <div class="mode-desc">Hotseat battle on one keyboard</div>
+    </button>
+  </div>
+  <div class="key-hint">&#8997; PvP uses separate keybindings for each player &mdash; see the shop panel for controls</div>
+</div>
+
+<div id="game-over">
+  <h1 id="game-over-title">Game Over</h1>
+  <p id="game-over-sub">You were overwhelmed on</p>
+  <div class="score" id="final-wave">Wave 1</div>
+  <button onclick="startGame(game.mode)">Play Again</button>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/factory.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/phases.js"></script>
+<script src="js/simulation.js"></script>
+<script src="js/render.js"></script>
+<script src="js/input.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
