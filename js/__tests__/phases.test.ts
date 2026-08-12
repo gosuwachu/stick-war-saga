@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup.js'
+import { createGameState } from './setup'
+import { createUnit } from '../factory'
+import { endBattle, spawnEnemyWave } from '../phases'
 
 describe('endBattle (PvP)', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState({ mode: 'pvp' })
@@ -36,7 +38,7 @@ describe('endBattle (PvP)', () => {
 })
 
 describe('endBattle (AI mode)', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState({ mode: 'ai', wave: 1 })
@@ -66,11 +68,10 @@ describe('endBattle (AI mode)', () => {
 })
 
 describe('spawnEnemyWave', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState({ mode: 'ai', wave: 1 })
-    globalThis.startPrep = () => {} // stub
   })
 
   it('gives enemy the correct starting gold for wave 1', () => {

@@ -1,31 +1,32 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup.js'
+import { createGameState } from './setup'
+import { spawnProjectile, updateProjectiles, spawnHitEffect, spawnHealEffect, spawnFloatingText, updateParticles } from '../simulation'
 
 describe('projectiles', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState()
   })
 
   it('spawnProjectile creates a projectile', () => {
-    const source = { x: 100, y: 200, dir: 1, type: 'Archer' }
-    const target = { x: 300, y: 200 }
+    const source = { x: 100, y: 200, dir: 1, type: 'Archer' } as any
+    const target = { x: 300, y: 200 } as any
     spawnProjectile(source, target, state)
     expect(state.projectiles).toHaveLength(1)
     expect(state.projectiles[0].type).toBe('arrow')
   })
 
   it('Mage projectiles are magic type', () => {
-    const source = { x: 100, y: 200, dir: -1, type: 'Mage' }
-    const target = { x: 50, y: 200 }
+    const source = { x: 100, y: 200, dir: -1, type: 'Mage' } as any
+    const target = { x: 50, y: 200 } as any
     spawnProjectile(source, target, state)
     expect(state.projectiles[0].type).toBe('magic')
   })
 
   it('updateProjectiles moves projectile toward target', () => {
-    const source = { x: 100, y: 200, dir: 1, type: 'Archer' }
-    const target = { x: 300, y: 200 }
+    const source = { x: 100, y: 200, dir: 1, type: 'Archer' } as any
+    const target = { x: 300, y: 200 } as any
     spawnProjectile(source, target, state)
     const p = state.projectiles[0]
     const startX = p.x
@@ -34,8 +35,8 @@ describe('projectiles', () => {
   })
 
   it('updateProjectiles removes projectiles that reach target', () => {
-    const source = { x: 100, y: 200, dir: 1, type: 'Archer' }
-    const target = { x: 110, y: 200 }
+    const source = { x: 100, y: 200, dir: 1, type: 'Archer' } as any
+    const target = { x: 110, y: 200 } as any
     spawnProjectile(source, target, state)
     updateProjectiles(1, state)
     expect(state.projectiles).toHaveLength(0)
@@ -43,7 +44,7 @@ describe('projectiles', () => {
 })
 
 describe('particles & floating text', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState()

@@ -1,7 +1,9 @@
-// ====================================================================
-//  RENDER - BACKGROUND
-// ====================================================================
-function renderBackground() {
+import type { Unit } from './types';
+import { game, rand } from './config';
+import { getCtx, W, H, GROUND_Y, NO_MANS_LAND } from './canvas';
+
+function renderBackground(): void {
+  const ctx = getCtx();
   const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
   sky.addColorStop(0, '#0d1b2a');
   sky.addColorStop(0.6, '#1b2838');
@@ -35,10 +37,8 @@ function renderBackground() {
   ctx.setLineDash([]);
 }
 
-// ====================================================================
-//  RENDER - MINERAL VEIN
-// ====================================================================
-function renderMinerals() {
+function renderMinerals(): void {
+  const ctx = getCtx();
   const veinY = GROUND_Y - 5;
 
   ctx.fillStyle = 'rgba(255, 215, 0, 0.15)';
@@ -68,21 +68,19 @@ function renderMinerals() {
   }
 }
 
-// ====================================================================
-//  RENDER - STICK FIGURES
-// ====================================================================
-function drawUnit(u) {
+function drawUnit(u: Unit): void {
+  const ctx = getCtx();
   if (u.state === 'dead') return;
 
   const s = u.scale;
   const x = u.x;
   const y = u.y;
   const teamColor = u.team === 'player' ? '#66bb6a' : '#ef5350';
-  const bodyColor = {
+  const bodyColor: string = ({
     Miner: '#8B7355', Swordsman: '#78909C', Archer: '#66BB6A',
     Spearman: '#AB47BC', Knight: '#FFA726', Mage: '#42A5F5',
     Giant: '#8D6E63', Healer: '#ef5350'
-  }[u.type] || '#aaa';
+  } as Record<string, string>)[u.type] || '#aaa';
 
   const alpha = u.state === 'dying' ? 1 - u.deathTimer / 0.6 : 1;
   ctx.globalAlpha = alpha;
@@ -98,7 +96,6 @@ function drawUnit(u) {
 
   const bodyLen = 14 * s;
 
-  // Head
   ctx.fillStyle = teamColor;
   ctx.strokeStyle = teamColor;
   ctx.lineWidth = 1.5 * s;
@@ -296,10 +293,8 @@ function drawUnit(u) {
   }
 }
 
-// ====================================================================
-//  RENDER - PROJECTILES
-// ====================================================================
-function renderProjectiles() {
+function renderProjectiles(): void {
+  const ctx = getCtx();
   game.projectiles.forEach(p => {
     if (p.type === 'arrow') {
       ctx.strokeStyle = '#8D6E63';
@@ -328,10 +323,8 @@ function renderProjectiles() {
   });
 }
 
-// ====================================================================
-//  RENDER - PARTICLES & TEXT
-// ====================================================================
-function renderParticles() {
+function renderParticles(): void {
+  const ctx = getCtx();
   game.particles.forEach(p => {
     ctx.globalAlpha = p.life / p.maxLife;
     ctx.fillStyle = p.color;
@@ -351,10 +344,8 @@ function renderParticles() {
   ctx.globalAlpha = 1;
 }
 
-// ====================================================================
-//  MAIN RENDER
-// ====================================================================
-function render() {
+export function render(): void {
+  const ctx = getCtx();
   ctx.clearRect(0, 0, W, H);
   renderBackground();
   renderMinerals();

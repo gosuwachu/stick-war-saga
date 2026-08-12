@@ -1,7 +1,7 @@
-// ====================================================================
-//  UNIT FACTORY
-// ====================================================================
-function createUnit(type, team, x, y) {
+import type { UnitType, Team, Unit } from './types';
+import { UNIT_TYPES, rand } from './config';
+
+export function createUnit(type: UnitType, team: Team, x: number, y: number): Unit {
   const def = UNIT_TYPES[type];
   const isGiant = type === 'Giant';
   const scale = isGiant ? 1.8 : 1;

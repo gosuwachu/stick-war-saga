@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup.js'
+import { createGameState } from './setup'
+import { UNIT_TYPES } from '../config'
+import { aiBuyUnit } from '../ai'
 
 describe('aiBuyUnit', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState()

@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import { UNIT_TYPES, UNIT_ORDER } from '../config'
+import { createUnit } from '../factory'
 
 describe('createUnit', () => {
   it('creates a unit with correct properties', () => {

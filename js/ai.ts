@@ -1,7 +1,10 @@
-// ====================================================================
-//  ENEMY AI
-// ====================================================================
-function aiUpdate(dt) {
+import type { GameState, UnitType } from './types';
+import { game, UNIT_TYPES, UNIT_ORDER, rand } from './config';
+import { createUnit } from './factory';
+import { W, GROUND_Y } from './canvas';
+import { updateHUD } from './shop';
+
+export function aiUpdate(dt: number): void {
   if (game.phase !== 'prep' || game.mode === 'pvp') return;
 
   const buyInterval = Math.max(1.5, 3.5 - game.wave * 0.12);
@@ -14,13 +17,13 @@ function aiUpdate(dt) {
   }
 }
 
-function aiBuyUnit(state, wave) {
+export function aiBuyUnit(state?: GameState, wave?: number): void {
   state = state || game;
   wave = wave || state.wave;
   const affordable = UNIT_ORDER.filter(t => t !== 'Miner' && UNIT_TYPES[t].cost <= state.enemy.gold);
   if (affordable.length === 0) return;
 
-  const counts = {};
+  const counts: Partial<Record<UnitType, number>> = {};
   state.enemy.units.forEach(u => { counts[u.type] = (counts[u.type] || 0) + 1; });
 
   let weights = affordable.map(t => {
@@ -29,10 +32,10 @@ function aiBuyUnit(state, wave) {
     if (count > 3) w *= 0.3;
     if (count > 5) w *= 0.2;
     if (count === 0) w *= 2;
-    if (t === 'Giant' && wave > 3) w *= 1.5;
-    if (t === 'Mage' && wave > 2) w *= 1.3;
+    if (t === 'Giant' && wave! > 3) w *= 1.5;
+    if (t === 'Mage' && wave! > 2) w *= 1.3;
     if (t === 'Archer') w *= 1.2;
-    if (t === 'Knight' && wave > 2) w *= 1.4;
+    if (t === 'Knight' && wave! > 2) w *= 1.4;
     return w;
   });
 
@@ -48,6 +51,6 @@ function aiBuyUnit(state, wave) {
     state.enemy.gold -= UNIT_TYPES[chosen].cost;
     const u = createUnit(chosen, 'enemy', W * 0.90 + rand(-15, 15), GROUND_Y - 10 + rand(-3, 3));
     state.enemy.units.push(u);
-    if (typeof updateHUD !== 'undefined') updateHUD();
+    updateHUD();
   }
 }

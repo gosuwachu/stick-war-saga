@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup.js'
+import { createGameState } from './setup'
+import { createUnit } from '../factory'
+import { updateEconomy } from '../simulation'
 
 describe('updateEconomy', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState({ phase: 'prep' })

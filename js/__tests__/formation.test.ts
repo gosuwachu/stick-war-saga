@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup.js'
+import { createGameState } from './setup'
+import { createUnit } from '../factory'
+import { updateFormationPositions, W, GROUND_Y } from '../canvas'
 
 const CANVAS_W = 1000
-const GROUND_Y = 440
 
 describe('updateFormationPositions', () => {
-  let state
+  let state: ReturnType<typeof createGameState>
 
   beforeEach(() => {
     state = createGameState()
@@ -51,8 +52,8 @@ describe('updateFormationPositions', () => {
       state.player.units.push(createUnit('Swordsman', 'player', 0, 0))
     }
     updateFormationPositions(state, CANVAS_W, GROUND_Y)
-    const row0 = state.player.units[4] // 5th unit, row 1
-    const row1 = state.player.units[5] // 6th unit, row 2
+    const row0 = state.player.units[4]
+    const row1 = state.player.units[5]
     expect(row0.formationY).toBeGreaterThan(row1.formationY)
   })
 

@@ -1,7 +1,10 @@
-// ====================================================================
-//  ECONOMY
-// ====================================================================
-function updateEconomy(dt, state) {
+import type { GameState, Unit, Projectile, Particle, FloatingText } from './types';
+import { game, dist, rand, clamp } from './config';
+import { endBattle } from './phases';
+import { updateHUD } from './shop';
+import { W, GROUND_Y } from './canvas';
+
+export function updateEconomy(dt: number, state?: GameState): void {
   state = state || game;
   let pIncome = 0;
   state.player.units.forEach(u => { if (u.isMiner && u.state !== 'dead' && u.state !== 'dying') pIncome += u.income; });
@@ -19,13 +22,10 @@ function updateEconomy(dt, state) {
     state.enemy.gold += eIncome * dt * 0.3;
   }
 
-  if (typeof updateHUD !== 'undefined') updateHUD();
+  updateHUD();
 }
 
-// ====================================================================
-//  UNIT LOGIC
-// ====================================================================
-function updateUnits(dt) {
+export function updateUnits(dt: number): void {
   const allUnits = [...game.player.units, ...game.enemy.units];
   allUnits.forEach(u => {
     if (u.state === 'dead') return;
@@ -55,7 +55,7 @@ function updateUnits(dt) {
           o.team === u.team && o.state !== 'dead' && o.state !== 'dying' && o.hp < o.maxHp && o !== u
         );
         if (friendlies.length > 0) {
-          const closest = friendlies.reduce((a, b) => dist(u, a) < dist(u, b) ? a : b);
+          const closest = friendlies.reduce((a, b) => dist(u, a!) < dist(u, b!) ? a : b);
           u.target = closest;
         } else {
           u.target = null;
@@ -65,7 +65,7 @@ function updateUnits(dt) {
       }
 
       if (u.target) {
-        const d = dist(u, u.target);
+        const d = dist(u, u.target!);
         if (u.isHealer && d <= u.range && u.target.hp < u.target.maxHp) {
           u.state = 'attacking';
           u.atkTimer -= dt;
@@ -89,7 +89,7 @@ function updateUnits(dt) {
 
             if (u.splash) {
               const splashTargets = enemies.filter(o =>
-                o !== u.target && dist(u.target, o) < 50 && o.state !== 'dead' && o.state !== 'dying'
+                o !== u.target && dist(u.target!, o) < 50 && o.state !== 'dead' && o.state !== 'dying'
               );
               splashTargets.forEach(o => {
                 o.hp -= dmg * 0.5;
@@ -136,10 +136,7 @@ function updateUnits(dt) {
   });
 }
 
-// ====================================================================
-//  COMBAT END CHECK
-// ====================================================================
-function checkBattleEnd(state) {
+export function checkBattleEnd(state?: GameState): boolean {
   state = state || game;
   const pAlive = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
   const eAlive = state.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
@@ -148,11 +145,11 @@ function checkBattleEnd(state) {
 
   if (state.phase === 'battle') {
     if (pAll === 0) {
-      if (typeof endBattle !== 'undefined') endBattle('enemy');
+      endBattle('enemy', state);
       return true;
     }
     if (eAll === 0) {
-      if (typeof endBattle !== 'undefined') endBattle('player');
+      endBattle('player', state);
       return true;
     }
     if (pAlive === 0 && eAlive === 0) {
@@ -165,10 +162,7 @@ function checkBattleEnd(state) {
   return false;
 }
 
-// ====================================================================
-//  PROJECTILES
-// ====================================================================
-function spawnProjectile(source, target, state) {
+export function spawnProjectile(source: Unit, target: Unit, state?: GameState): void {
   state = state || game;
   state.projectiles.push({
     x: source.x + source.dir * 10,
@@ -179,10 +173,10 @@ function spawnProjectile(source, target, state) {
     life: 2,
     source,
     type: source.type === 'Mage' ? 'magic' : 'arrow',
-  });
+  } as Projectile);
 }
 
-function updateProjectiles(dt, state) {
+export function updateProjectiles(dt: number, state?: GameState): void {
   state = state || game;
   for (let i = state.projectiles.length - 1; i >= 0; i--) {
     const p = state.projectiles[i];
@@ -206,10 +200,7 @@ function updateProjectiles(dt, state) {
   }
 }
 
-// ====================================================================
-//  EFFECTS
-// ====================================================================
-function spawnHitEffect(x, y, state) {
+export function spawnHitEffect(x: number, y: number, state?: GameState): void {
   state = state || game;
   for (let i = 0; i < 5; i++) {
     state.particles.push({
@@ -224,7 +215,7 @@ function spawnHitEffect(x, y, state) {
   }
 }
 
-function spawnHealEffect(x, y, state) {
+export function spawnHealEffect(x: number, y: number, state?: GameState): void {
   state = state || game;
   for (let i = 0; i < 4; i++) {
     state.particles.push({
@@ -239,12 +230,12 @@ function spawnHealEffect(x, y, state) {
   }
 }
 
-function spawnFloatingText(x, y, text, color, state) {
+export function spawnFloatingText(x: number, y: number, text: string, color: string, state?: GameState): void {
   state = state || game;
   state.floatingTexts.push({ x, y, text, color, life: 1, maxLife: 1 });
 }
 
-function updateParticles(dt, state) {
+export function updateParticles(dt: number, state?: GameState): void {
   state = state || game;
   for (let i = state.particles.length - 1; i >= 0; i--) {
     const p = state.particles[i];

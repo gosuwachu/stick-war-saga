@@ -4,10 +4,14 @@
 Browser-based Stick War Saga clone. Single `index.html` with vanilla JS + Canvas2D.
 
 ## File Structure
-- `/home/piotr/alek-game/index.html` — everything (HTML + CSS + JS, ~1500 lines)
+- `/home/piotr/alek-game/index.html` — entry point, loads `/js/main.ts` as module
+- `/home/piotr/alek-game/js/*.ts` — TypeScript source files (modules)
+- `/home/piotr/alek-game/tsconfig.json` — TypeScript config
+- `/home/piotr/alek-game/vite.config.ts` — Vite dev server + Vitest config
 
 ## How to Run
-Open `index.html` directly in a browser. No server needed.
+Run `npm run dev` (starts Vite dev server), then open the URL shown (usually http://localhost:5173).
+For production build: `npm run build` (outputs to `dist/`).
 
 ## Game Modes
 

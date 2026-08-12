@@ -1,7 +1,7 @@
-// ====================================================================
-//  KEYBOARD INPUT
-// ====================================================================
-document.addEventListener('keydown', (e) => {
+import { game, P1_KEYS, P2_KEYS } from './config';
+import { buyUnit } from './shop';
+
+document.addEventListener('keydown', (e: KeyboardEvent) => {
   if (game.phase !== 'prep') return;
   const p1Type = P1_KEYS[e.key];
   if (p1Type) {
