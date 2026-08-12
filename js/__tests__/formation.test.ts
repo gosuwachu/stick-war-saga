@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { GROUND_Y, updateFormationPositions, } from '../canvas'
 import { createUnit } from '../factory'
-import { updateFormationPositions, W, GROUND_Y } from '../canvas'
+import { createGameState } from './setup'
 
 const CANVAS_W = 1000
 
@@ -18,12 +18,12 @@ describe('updateFormationPositions', () => {
     state.enemy.units.push(createUnit('Swordsman', 'enemy', 0, 0))
     updateFormationPositions(state, CANVAS_W, GROUND_Y)
     state.player.units.forEach(u => {
-      expect(isNaN(u.formationX)).toBe(false)
-      expect(isNaN(u.formationY)).toBe(false)
+      expect(Number.isNaN(u.formationX)).toBe(false)
+      expect(Number.isNaN(u.formationY)).toBe(false)
     })
     state.enemy.units.forEach(u => {
-      expect(isNaN(u.formationX)).toBe(false)
-      expect(isNaN(u.formationY)).toBe(false)
+      expect(Number.isNaN(u.formationX)).toBe(false)
+      expect(Number.isNaN(u.formationY)).toBe(false)
     })
   })
 
@@ -64,8 +64,8 @@ describe('updateFormationPositions', () => {
     state.player.units.push(createUnit('Archer', 'player', 0, 0))
     updateFormationPositions(state, CANVAS_W, GROUND_Y)
     state.player.units.forEach(u => {
-      expect(isNaN(u.formationX)).toBe(false)
-      expect(isNaN(u.formationY)).toBe(false)
+      expect(Number.isNaN(u.formationX)).toBe(false)
+      expect(Number.isNaN(u.formationY)).toBe(false)
     })
     const miners = state.player.units.filter(u => u.isMiner)
     const fighters = state.player.units.filter(u => !u.isMiner)

@@ -1,6 +1,6 @@
-import type { Unit } from './types';
+import { GROUND_Y, getCtx, H, NO_MANS_LAND, W } from './canvas';
 import { game, rand } from './config';
-import { getCtx, W, H, GROUND_Y, NO_MANS_LAND } from './canvas';
+import type { Unit } from './types';
 
 function renderBackground(): void {
   const ctx = getCtx();

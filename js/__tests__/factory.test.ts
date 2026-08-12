@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { UNIT_TYPES, UNIT_ORDER } from '../config'
+import { describe, expect, it } from 'vitest'
+import { UNIT_ORDER, } from '../config'
 import { createUnit } from '../factory'
 
 describe('createUnit', () => {

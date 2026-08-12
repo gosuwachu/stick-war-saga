@@ -1,5 +1,5 @@
-import type { GameState, Unit } from './types';
 import { game } from './config';
+import type { GameState, } from './types';
 
 export let W: number = 0;
 export let H: number = 0;

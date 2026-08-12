@@ -8,10 +8,21 @@ Browser-based Stick War Saga clone. Single `index.html` with vanilla JS + Canvas
 - `/home/piotr/alek-game/js/*.ts` — TypeScript source files (modules)
 - `/home/piotr/alek-game/tsconfig.json` — TypeScript config
 - `/home/piotr/alek-game/vite.config.ts` — Vite dev server + Vitest config
+- `/home/piotr/alek-game/biome.json` — Biome linter config
 
 ## How to Run
 Run `npm run dev` (starts Vite dev server), then open the URL shown (usually http://localhost:5173).
 For production build: `npm run build` (outputs to `dist/`).
+
+## Linting
+Uses **Biome** (v2.5.8) — Rust-based linter + formatter.
+- `npm run lint` — check for issues
+- `npm run lint:fix` — apply safe fixes
+- `npm run lint:unsafe` — apply all fixes (use with care; may change semantics)
+Config in `biome.json`. Key rule overrides (matches tsconfig strictness):
+- `noUnusedVariables`: off (matches `noUnusedLocals: false`)
+- `noExplicitAny`: off
+- `noNonNullAssertion`: off
 
 ## Game Modes
 

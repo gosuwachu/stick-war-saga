@@ -1,5 +1,5 @@
-import type { UnitType, Team, Unit } from './types';
-import { UNIT_TYPES, rand } from './config';
+import { rand, UNIT_TYPES } from './config';
+import type { Team, Unit, UnitType } from './types';
 
 export function createUnit(type: UnitType, team: Team, x: number, y: number): Unit {
   const def = UNIT_TYPES[type];

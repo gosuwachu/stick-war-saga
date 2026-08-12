@@ -1,8 +1,8 @@
-import type { GameState, UnitType } from './types';
-import { game, UNIT_TYPES, UNIT_ORDER, rand } from './config';
+import { GROUND_Y, W } from './canvas';
+import { game, rand, UNIT_ORDER, UNIT_TYPES } from './config';
 import { createUnit } from './factory';
-import { W, GROUND_Y } from './canvas';
 import { updateHUD } from './shop';
+import type { GameState, UnitType } from './types';
 
 export function aiUpdate(dt: number): void {
   if (game.phase !== 'prep' || game.mode === 'pvp') return;
@@ -26,7 +26,7 @@ export function aiBuyUnit(state?: GameState, wave?: number): void {
   const counts: Partial<Record<UnitType, number>> = {};
   state.enemy.units.forEach(u => { counts[u.type] = (counts[u.type] || 0) + 1; });
 
-  let weights = affordable.map(t => {
+  const weights = affordable.map(t => {
     let w = 1;
     const count = counts[t] || 0;
     if (count > 3) w *= 0.3;

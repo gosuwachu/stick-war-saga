@@ -1,8 +1,8 @@
-import type { GameState } from './types';
-import { game, UNIT_TYPES } from './config';
-import { createUnit } from './factory';
 import { updateFormationPositions } from './canvas';
-import { updateShop, updateHUD, updateArmyPreview } from './shop';
+import { game, } from './config';
+import { createUnit } from './factory';
+import { updateArmyPreview, updateHUD, updateShop } from './shop';
+import type { GameState } from './types';
 
 export function startPrep(): void {
   game.phase = 'prep';
@@ -16,9 +16,9 @@ export function startPrep(): void {
 
   game.projectiles = [];
   if (game.mode === 'pvp') {
-    showBanner('ROUND ' + game.pvpRound, 'BUILD YOUR ARMY  |  ' + game.pvpScore.p1 + '-' + game.pvpScore.p2, '#64b5f6');
+    showBanner(`ROUND ${game.pvpRound}`, `BUILD YOUR ARMY  |  ${game.pvpScore.p1}-${game.pvpScore.p2}`, '#64b5f6');
   } else {
-    showBanner('PREPARE', 'Wave ' + game.wave + '  |  Buy your army!', '#64b5f6');
+    showBanner('PREPARE', `Wave ${game.wave}  |  Buy your army!`, '#64b5f6');
   }
   updateShop();
   updateHUD();
@@ -43,9 +43,9 @@ export function endBattle(winner: string, state?: GameState): void {
     else state.pvpScore.p2++;
     if (state.pvpRound >= state.pvpMaxRounds) {
       const matchWinner = state.pvpScore.p1 > state.pvpScore.p2 ? 'Player 1' : 'Player 2';
-      showBanner(matchWinner + ' WINS THE MATCH!', state.pvpScore.p1 + ' - ' + state.pvpScore.p2, '#ffd700');
+      showBanner(`${matchWinner} WINS THE MATCH!`, `${state.pvpScore.p1} - ${state.pvpScore.p2}`, '#ffd700');
     } else {
-      showBanner('ROUND ' + state.pvpRound + ' COMPLETE', 'Player ' + (winner === 'player' ? '1' : '2') + ' wins  (' + state.pvpScore.p1 + '-' + state.pvpScore.p2 + ')', '#64b5f6');
+      showBanner(`ROUND ${state.pvpRound} COMPLETE`, `Player ${winner === 'player' ? '1' : '2'} wins  (${state.pvpScore.p1}-${state.pvpScore.p2})`, '#64b5f6');
     }
     state.pvpRound++;
   } else {
@@ -53,7 +53,7 @@ export function endBattle(winner: string, state?: GameState): void {
       const bonus = 80 + state.wave * 20;
       state.player.gold += bonus;
       state.player.units.forEach(u => { u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.3); });
-      showBanner('VICTORY', 'Wave ' + state.wave + ' cleared! +' + bonus + ' gold', '#81c784');
+      showBanner('VICTORY', `Wave ${state.wave} cleared! +${bonus} gold`, '#81c784');
     } else {
       showBanner('DEFEAT', 'Your army has fallen...', '#ff8a80');
     }

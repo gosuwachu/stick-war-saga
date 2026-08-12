@@ -1,4 +1,4 @@
-import type { UnitType, UnitDef, GameState, Mode } from './types';
+import type { GameState, UnitDef, UnitType } from './types';
 
 export const UNIT_TYPES: Record<UnitType, UnitDef> = {
   Miner:    { cost: 80,  hp: 40,  dmg: 4,  range: 25, speed: 50, atkCd: 1.0, income: 3, label: 'Miner',    desc: '+3g/s income' },

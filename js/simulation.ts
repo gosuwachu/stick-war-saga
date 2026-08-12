@@ -1,8 +1,8 @@
-import type { GameState, Unit, Projectile, Particle, FloatingText } from './types';
-import { game, dist, rand, clamp } from './config';
+import { GROUND_Y, W } from './canvas';
+import { clamp, dist, game, rand } from './config';
 import { endBattle } from './phases';
 import { updateHUD } from './shop';
-import { W, GROUND_Y } from './canvas';
+import type { GameState, Projectile, Unit } from './types';
 
 export function updateEconomy(dt: number, state?: GameState): void {
   state = state || game;
@@ -72,7 +72,7 @@ export function updateUnits(dt: number): void {
           if (u.atkTimer <= 0) {
             u.target.hp = Math.min(u.target.maxHp, u.target.hp + u.healPower);
             u.atkTimer = u.atkCd;
-            spawnFloatingText(u.target.x, u.target.y - 15, '+' + u.healPower, '#81c784');
+            spawnFloatingText(u.target.x, u.target.y - 15, `+${u.healPower}`, '#81c784');
             spawnHealEffect(u.target.x, u.target.y - 10);
           }
         } else if (!u.isHealer && d <= u.range) {
@@ -84,7 +84,7 @@ export function updateUnits(dt: number): void {
             u.target.hp -= dmg;
             u.atkTimer = u.atkCd;
             u.killCount++;
-            spawnFloatingText(u.target.x, u.target.y - 15, '-' + Math.round(dmg), '#ff8a80');
+            spawnFloatingText(u.target.x, u.target.y - 15, `-${Math.round(dmg)}`, '#ff8a80');
             spawnHitEffect(u.target.x, u.target.y - 10);
 
             if (u.splash) {
@@ -93,7 +93,7 @@ export function updateUnits(dt: number): void {
               );
               splashTargets.forEach(o => {
                 o.hp -= dmg * 0.5;
-                spawnFloatingText(o.x, o.y - 15, '-' + Math.round(dmg*0.5), '#ff8a80');
+                spawnFloatingText(o.x, o.y - 15, `-${Math.round(dmg*0.5)}`, '#ff8a80');
                 spawnHitEffect(o.x, o.y - 10);
               });
             }

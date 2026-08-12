@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { UNIT_TYPES, UNIT_ORDER } from '../config'
+import { describe, expect, it } from 'vitest'
+import { UNIT_ORDER, UNIT_TYPES } from '../config'
 
 describe('UNIT_TYPES', () => {
   it('has all 8 unit types', () => {

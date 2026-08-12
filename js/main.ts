@@ -1,10 +1,10 @@
+import { aiUpdate } from './ai';
 import { game } from './config';
 import { createUnit } from './factory';
-import { updateEconomy, updateUnits, updateProjectiles, updateParticles, checkBattleEnd } from './simulation';
-import { startBattle, endBattle, spawnEnemyWave, resetPvPRound } from './phases';
-import { aiUpdate } from './ai';
-import { buildShop, updateShop, updateHUD, updateArmyPreview } from './shop';
+import { resetPvPRound, spawnEnemyWave, startBattle } from './phases';
 import { render } from './render';
+import { buildShop, updateArmyPreview, updateHUD, updateShop } from './shop';
+import { checkBattleEnd, updateEconomy, updateParticles, updateProjectiles, updateUnits } from './simulation';
 import './input.js';
 import { resizeCanvas, updateFormationPositions } from './canvas';
 
@@ -38,7 +38,7 @@ function update(dt: number): void {
       if (game.mode === 'pvp') {
         if (game.pvpRound > game.pvpMaxRounds) {
           document.getElementById('game-over-title')!.textContent = game.pvpScore.p1 > game.pvpScore.p2 ? 'Player 1 Wins the Match!' : 'Player 2 Wins the Match!';
-          document.getElementById('game-over-sub')!.textContent = 'Final Score: ' + game.pvpScore.p1 + ' - ' + game.pvpScore.p2;
+          document.getElementById('game-over-sub')!.textContent = `Final Score: ${game.pvpScore.p1} - ${game.pvpScore.p2}`;
           document.getElementById('final-wave')!.textContent = '';
           game.phase = 'gameover';
           document.getElementById('game-over')!.classList.add('show');
@@ -50,7 +50,7 @@ function update(dt: number): void {
           game.phase = 'gameover';
           document.getElementById('game-over-title')!.textContent = 'Game Over';
           document.getElementById('game-over-sub')!.textContent = 'You were overwhelmed on';
-          document.getElementById('final-wave')!.textContent = 'Wave ' + game.wave;
+          document.getElementById('final-wave')!.textContent = `Wave ${game.wave}`;
           document.getElementById('game-over')!.classList.add('show');
         } else {
           game.wave++;

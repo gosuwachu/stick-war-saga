@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { createUnit } from '../factory'
 import { checkBattleEnd } from '../simulation'
+import { createGameState } from './setup'
 
 describe('checkBattleEnd', () => {
   let state: ReturnType<typeof createGameState>

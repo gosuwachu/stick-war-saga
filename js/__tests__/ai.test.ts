@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createGameState } from './setup'
-import { UNIT_TYPES } from '../config'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { aiBuyUnit } from '../ai'
+import { UNIT_TYPES } from '../config'
+import { createGameState } from './setup'
 
 describe('aiBuyUnit', () => {
   let state: ReturnType<typeof createGameState>

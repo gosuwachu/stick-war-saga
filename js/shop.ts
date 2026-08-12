@@ -1,7 +1,7 @@
-import type { UnitType } from './types';
-import { game, UNIT_TYPES, UNIT_ORDER, P1_KEYS, P2_KEYS } from './config';
-import { createUnit } from './factory';
 import { updateFormationPositions } from './canvas';
+import { game, P1_KEYS, P2_KEYS, UNIT_ORDER, UNIT_TYPES } from './config';
+import { createUnit } from './factory';
+import type { UnitType } from './types';
 
 export function buildShop(): void {
   const container = document.getElementById('shop-units')!;
@@ -89,11 +89,11 @@ export function updateShop(): void {
   const p1Total = game.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
   const p2Total = game.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
   document.getElementById('shop-total')!.textContent = isPvP
-    ? 'P1:' + p1Total + '  P2:' + p2Total
-    : p1Total + ' units';
+    ? `P1:${p1Total}  P2:${p2Total}`
+    : `${p1Total} units`;
   document.getElementById('shop-income')!.textContent = isPvP
-    ? 'P1:+' + game.player.income + 'g  P2:+' + game.enemy.income + 'g'
-    : '+' + game.player.income + 'g/s';
+    ? `P1:+${game.player.income}g  P2:+${game.enemy.income}g`
+    : `+${game.player.income}g/s`;
 
   if (isPvP) {
     document.getElementById('shop-phase-status')!.textContent =
@@ -120,7 +120,7 @@ export function updateHUD(): void {
 
   if (isPvP) {
     document.getElementById('hud-wave-item')!.style.display = '';
-    document.getElementById('hud-wave')!.textContent = 'R' + game.pvpRound + '/' + game.pvpMaxRounds + '  ' + game.pvpScore.p1 + '-' + game.pvpScore.p2;
+    document.getElementById('hud-wave')!.textContent = `R${game.pvpRound}/${game.pvpMaxRounds}  ${game.pvpScore.p1}-${game.pvpScore.p2}`;
   } else {
     document.getElementById('hud-wave')!.textContent = String(game.wave);
   }
@@ -131,7 +131,7 @@ export function updateHUD(): void {
   if (game.phase === 'prep') {
     phaseLabel.textContent = 'Prep';
     timerEl.textContent = String(Math.ceil(game.prepTimer));
-    timerEl.className = 'value timer-value' + (game.prepTimer <= 5 ? ' urgent' : '');
+    timerEl.className = `value timer-value${game.prepTimer <= 5 ? ' urgent' : ''}`;
   } else if (game.phase === 'battle') {
     phaseLabel.textContent = 'Fight';
     timerEl.textContent = String(Math.floor(game.battleTimer));

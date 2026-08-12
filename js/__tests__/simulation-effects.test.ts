@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { spawnFloatingText, spawnHealEffect, spawnHitEffect, spawnProjectile, updateParticles, updateProjectiles } from '../simulation'
 import { createGameState } from './setup'
-import { spawnProjectile, updateProjectiles, spawnHitEffect, spawnHealEffect, spawnFloatingText, updateParticles } from '../simulation'
 
 describe('projectiles', () => {
   let state: ReturnType<typeof createGameState>

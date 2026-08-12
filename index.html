@@ -25,7 +25,7 @@
         <div class="hud-item" id="hud-p2-gold"><div class="label">P2 Gold</div><div class="value gold-value" id="hud-enemy-gold">0</div></div>
       </div>
     </div>
-    <div id="banner"><h1 id="banner-title"></h1><p id="banner-sub"></p></div>
+    <div id="banner"><h1 id="banner-title" aria-label="Banner"></h1><p id="banner-sub"></p></div>
     <div id="army-preview"></div>
   </div>
   <div id="shop-panel">
@@ -42,12 +42,12 @@
   <h1>Stick War Saga</h1>
   <div class="subtitle">Choose your game mode</div>
   <div class="btn-row">
-    <button onclick="startGame('ai')">
+    <button type="button" onclick="startGame('ai')">
       <span class="mode-icon">&#9876;</span>
       <span class="mode-label">Player vs AI</span>
       <div class="mode-desc">Endless waves against computer</div>
     </button>
-    <button onclick="startGame('pvp')">
+    <button type="button" onclick="startGame('pvp')">
       <span class="mode-icon">&#9881;</span>
       <span class="mode-label">Player vs Player</span>
       <div class="mode-desc">Hotseat battle on one keyboard</div>
@@ -60,7 +60,7 @@
   <h1 id="game-over-title">Game Over</h1>
   <p id="game-over-sub">You were overwhelmed on</p>
   <div class="score" id="final-wave">Wave 1</div>
-  <button onclick="startGame(game.mode)">Play Again</button>
+  <button type="button" onclick="startGame(game.mode)">Play Again</button>
 </div>
 
 <script src="js/config.js"></script>

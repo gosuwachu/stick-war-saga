@@ -1,4 +1,4 @@
-import { vi, beforeEach } from 'vitest'
+import { beforeEach, } from 'vitest'
 import type { GameState } from '../types.js'
 
 export function createGameState(overrides: Partial<GameState> = {}): GameState {
