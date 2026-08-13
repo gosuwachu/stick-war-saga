@@ -30,6 +30,12 @@ export function updateUnits(dt: number): void {
   const allUnits = [...game.player.units, ...game.enemy.units];
   allUnits.forEach(u => {
     if (u.state === 'dead') return;
+    if (u.hp <= 0 && u.state !== 'dying') {
+      u.state = 'dying';
+      u.deathTimer = 0;
+      spawnFloatingText(u.x, u.y - 25, 'DEAD', '#ccc');
+      playDeath();
+    }
     u.animTime += dt;
 
     if (u.state === 'dying') {
