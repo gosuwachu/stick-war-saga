@@ -158,10 +158,17 @@ export function checkBattleEnd(state?: GameState): boolean {
       endBattle('player', state);
       return true;
     }
+    const enemyInPlayerZone = state.enemy.units.some(
+      u => !u.isMiner && u.state !== 'dead' && u.state !== 'dying' && u.x < W * 0.25
+    );
+    if (enemyInPlayerZone) {
+      state.player.units.forEach(u => { if (u.isMiner && u.state === 'idle') u.state = 'marching'; });
+      state.enemy.units.forEach(u => { if (u.isMiner && u.state === 'idle') u.state = 'marching'; });
+    }
     if (pAlive === 0 && eAlive === 0) {
       if (pAll > 0 && eAll > 0) {
-        state.player.units.forEach(u => { if (u.isMiner && u.state !== 'dead') u.state = 'marching'; });
-        state.enemy.units.forEach(u => { if (u.isMiner && u.state !== 'dead') u.state = 'marching'; });
+        state.player.units.forEach(u => { if (u.isMiner && u.state === 'idle') u.state = 'marching'; });
+        state.enemy.units.forEach(u => { if (u.isMiner && u.state === 'idle') u.state = 'marching'; });
       }
     }
   }
