@@ -112,7 +112,7 @@ export function updateUnits(dt: number): void {
           u.state = 'marching';
           const speed = u.speed * (u.isGiant ? 0.8 : 1);
           const dx = (u.target.x - u.x);
-          const dy = (u.target.y - u.y - 5);
+          const dy = (u.target.y - u.y);
           const dd = Math.sqrt(dx*dx + dy*dy);
           if (dd > 0) {
             u.x += (dx / dd) * speed * dt;

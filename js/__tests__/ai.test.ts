@@ -18,11 +18,12 @@ describe('aiBuyUnit', () => {
     expect(state.enemy.units.length).toBeGreaterThan(0)
   })
 
-  it('never buys a Miner type', () => {
-    for (let i = 0; i < 10; i++) {
+  it('can buy Miner type but caps at 6', () => {
+    for (let i = 0; i < 20; i++) {
       aiBuyUnit(state)
     }
-    state.enemy.units.forEach(u => expect(u.type).not.toBe('Miner'))
+    const miners = state.enemy.units.filter(u => u.type === 'Miner')
+    expect(miners.length).toBeLessThanOrEqual(6)
   })
 
   it('does nothing when no units are affordable', () => {

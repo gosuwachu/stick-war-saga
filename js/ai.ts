@@ -20,7 +20,7 @@ export function aiUpdate(dt: number): void {
 export function aiBuyUnit(state?: GameState, wave?: number): void {
   state = state || game;
   wave = wave || state.wave;
-  const affordable = UNIT_ORDER.filter(t => t !== 'Miner' && UNIT_TYPES[t].cost <= state.enemy.gold);
+  const affordable = UNIT_ORDER.filter(t => UNIT_TYPES[t].cost <= state.enemy.gold);
   if (affordable.length === 0) return;
 
   const counts: Partial<Record<UnitType, number>> = {};
@@ -36,6 +36,7 @@ export function aiBuyUnit(state?: GameState, wave?: number): void {
     if (t === 'Mage' && wave! > 2) w *= 1.3;
     if (t === 'Archer') w *= 1.2;
     if (t === 'Knight' && wave! > 2) w *= 1.4;
+    if (t === 'Miner' && (counts[t] || 0) >= 6) w = 0;
     return w;
   });
 
