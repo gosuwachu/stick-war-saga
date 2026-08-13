@@ -99,8 +99,6 @@ export function spawnEnemyWave(state?: GameState, waveOverride?: number): void {
 }
 
 export function resetPvPRound(): void {
-  game.player.gold = 400;
-  game.enemy.gold = 400;
   game.player.income = 0;
   game.enemy.income = 0;
   game.projectiles = [];
