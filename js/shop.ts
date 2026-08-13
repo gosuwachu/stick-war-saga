@@ -1,7 +1,18 @@
 import { updateFormationPositions } from './canvas';
-import { game, P1_KEYS, P2_KEYS, UNIT_ORDER, UNIT_TYPES } from './config';
+import { P1_KEYS, P2_KEYS, UNIT_ORDER, UNIT_TYPES } from './config';
 import { createUnit } from './factory';
-import type { UnitType } from './types';
+import type { CanvasDims, GameState, UnitType } from './types';
+
+let _shopState: GameState | null = null;
+let _shopDims: CanvasDims | null = null;
+
+export function setShopState(state: GameState): void {
+  _shopState = state;
+}
+
+export function setShopDims(dims: CanvasDims): void {
+  _shopDims = dims;
+}
 
 export function buildShop(): void {
   const container = document.getElementById('shop-units')!;
@@ -29,13 +40,12 @@ export function buildShop(): void {
       <span class="count" id="count-${type}">0</span>
     `;
 
-    card.addEventListener('click', () => { if (game.mode !== 'pvp') buyUnit(type, 'player'); });
+    card.addEventListener('click', () => { if (_shopState && _shopState.mode !== 'pvp' && _shopDims) buyUnit(type, 'player', _shopState, _shopDims); });
     container.appendChild(card);
   });
 }
 
-export function buyUnit(type: UnitType, team: 'player' | 'enemy', state?: typeof game): void {
-  state = state || game;
+export function buyUnit(type: UnitType, team: 'player' | 'enemy', state: GameState, dims: CanvasDims): void {
   if (state.phase !== 'prep') return;
   const def = UNIT_TYPES[type];
   const gold = team === 'player' ? state.player.gold : state.enemy.gold;
@@ -49,25 +59,25 @@ export function buyUnit(type: UnitType, team: 'player' | 'enemy', state?: typeof
   }
   const u = createUnit(type, team, 0, 0);
   units.push(u);
-  updateFormationPositions();
+  updateFormationPositions(state, dims);
   u.x = u.formationX;
   u.y = u.formationY;
-  updateShop();
-  updateHUD();
-  updateArmyPreview();
+  updateShop(state);
+  updateHUD(state);
+  updateArmyPreview(state);
 }
 
-export function updateShop(): void {
-  const isPvP = game.mode === 'pvp';
+export function updateShop(state: GameState): void {
+  const isPvP = state.mode === 'pvp';
   const container = document.getElementById('shop-units')!;
   const cards = container.querySelectorAll('.unit-card');
   cards.forEach(card => {
     const type = (card as HTMLElement).dataset.type as UnitType;
     const cost = UNIT_TYPES[type].cost;
-    const p1Count = game.player.units.filter(u => u.type === type && u.state !== 'dead').length;
-    const p2Count = game.enemy.units.filter(u => u.type === type && u.state !== 'dead').length;
-    const p1CanBuy = game.player.gold >= cost;
-    const disabled = game.phase !== 'prep' || (!isPvP && !p1CanBuy);
+    const p1Count = state.player.units.filter(u => u.type === type && u.state !== 'dead').length;
+    const p2Count = state.enemy.units.filter(u => u.type === type && u.state !== 'dead').length;
+    const p1CanBuy = state.player.gold >= cost;
+    const disabled = state.phase !== 'prep' || (!isPvP && !p1CanBuy);
     card.classList.toggle('disabled', disabled);
 
     const p1Key = Object.keys(P1_KEYS).find(k => P1_KEYS[k] === type);
@@ -86,26 +96,26 @@ export function updateShop(): void {
     }
   });
 
-  const p1Total = game.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
-  const p2Total = game.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
+  const p1Total = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
+  const p2Total = state.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
   document.getElementById('shop-total')!.textContent = isPvP
     ? `P1:${p1Total}  P2:${p2Total}`
     : `${p1Total} units`;
   document.getElementById('shop-income')!.textContent = isPvP
-    ? `P1:+${game.player.income}g  P2:+${game.enemy.income}g`
-    : `+${game.player.income}g/s`;
+    ? `P1:+${state.player.income}g  P2:+${state.enemy.income}g`
+    : `+${state.player.income}g/s`;
 
   if (isPvP) {
     document.getElementById('shop-phase-status')!.textContent =
-      game.phase === 'prep' ? 'P1:1qazxsw2  P2:=[;.,lp-' : game.phase === 'battle' ? 'Battle!' : '...';
+      state.phase === 'prep' ? 'P1:1qazxsw2  P2:=[;.,lp-' : state.phase === 'battle' ? 'Battle!' : '...';
   } else {
     document.getElementById('shop-phase-status')!.textContent =
-      game.phase === 'prep' ? 'Click or press key to buy' : game.phase === 'battle' ? 'Battle in progress...' : '...';
+      state.phase === 'prep' ? 'Click or press key to buy' : state.phase === 'battle' ? 'Battle in progress...' : '...';
   }
 }
 
-export function updateHUD(): void {
-  const isPvP = game.mode === 'pvp';
+export function updateHUD(state: GameState): void {
+  const isPvP = state.mode === 'pvp';
 
   document.getElementById('hud-p1-gold')!.querySelector('.label')!.textContent = isPvP ? 'P1 Gold' : 'Gold';
   document.getElementById('hud-p1-army')!.querySelector('.label')!.textContent = isPvP ? 'P1 Army' : 'Army';
@@ -120,40 +130,40 @@ export function updateHUD(): void {
 
   if (isPvP) {
     document.getElementById('hud-wave-item')!.style.display = '';
-    document.getElementById('hud-wave')!.textContent = `R${game.pvpRound}/${game.pvpMaxRounds}  ${game.pvpScore.p1}-${game.pvpScore.p2}`;
+    document.getElementById('hud-wave')!.textContent = `R${state.pvpRound}/${state.pvpMaxRounds}  ${state.pvpScore.p1}-${state.pvpScore.p2}`;
   } else {
-    document.getElementById('hud-wave')!.textContent = String(game.wave);
+    document.getElementById('hud-wave')!.textContent = String(state.wave);
   }
 
   const timerEl = document.getElementById('hud-timer')!;
   const phaseLabel = document.getElementById('hud-phase-label')!;
 
-  if (game.phase === 'prep') {
+  if (state.phase === 'prep') {
     phaseLabel.textContent = 'Prep';
-    timerEl.textContent = String(Math.ceil(game.prepTimer));
-    timerEl.className = `value timer-value${game.prepTimer <= 5 ? ' urgent' : ''}`;
-  } else if (game.phase === 'battle') {
+    timerEl.textContent = String(Math.ceil(state.prepTimer));
+    timerEl.className = `value timer-value${state.prepTimer <= 5 ? ' urgent' : ''}`;
+  } else if (state.phase === 'battle') {
     phaseLabel.textContent = 'Fight';
-    timerEl.textContent = String(Math.floor(game.battleTimer));
+    timerEl.textContent = String(Math.floor(state.battleTimer));
     timerEl.className = 'value timer-value';
   } else {
     phaseLabel.textContent = '--';
     timerEl.textContent = '--';
   }
 
-  document.getElementById('hud-gold')!.textContent = String(Math.floor(game.player.gold));
-  const p1Alive = game.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
+  document.getElementById('hud-gold')!.textContent = String(Math.floor(state.player.gold));
+  const p1Alive = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
   document.getElementById('hud-army')!.textContent = String(p1Alive);
 
-  document.getElementById('hud-enemy-gold')!.textContent = String(Math.floor(game.enemy.gold));
-  const p2Alive = game.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
+  document.getElementById('hud-enemy-gold')!.textContent = String(Math.floor(state.enemy.gold));
+  const p2Alive = state.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
   document.getElementById('hud-enemy-army')!.textContent = String(p2Alive);
 }
 
-export function updateArmyPreview(): void {
+export function updateArmyPreview(state: GameState): void {
   const container = document.getElementById('army-preview')!;
   container.innerHTML = '';
-  const alive = game.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying');
+  const alive = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying');
   const colors: Record<string, string> = {
     Miner: '#8B7355', Swordsman: '#78909C', Archer: '#66BB6A',
     Spearman: '#AB47BC', Knight: '#FFA726', Mage: '#42A5F5',

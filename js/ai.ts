@@ -1,24 +1,21 @@
-import { GROUND_Y, W } from './canvas';
-import { game, rand, UNIT_ORDER, UNIT_TYPES } from './config';
+import { rand, UNIT_ORDER, UNIT_TYPES } from './config';
 import { createUnit } from './factory';
-import { updateHUD } from './shop';
-import type { GameState, UnitType } from './types';
+import type { CanvasDims, GameState, UnitType } from './types';
 
-export function aiUpdate(dt: number): void {
-  if (game.phase !== 'prep' || game.mode === 'pvp') return;
+export function aiUpdate(dt: number, state: GameState, dims: CanvasDims): void {
+  if (state.phase !== 'prep' || state.mode === 'pvp') return;
 
-  const buyInterval = Math.max(1.5, 3.5 - game.wave * 0.12);
-  if (!game._aiTimer) game._aiTimer = 0;
-  game._aiTimer += dt;
+  const buyInterval = Math.max(1.5, 3.5 - state.wave * 0.12);
+  if (!state._aiTimer) state._aiTimer = 0;
+  state._aiTimer += dt;
 
-  if (game._aiTimer >= buyInterval) {
-    game._aiTimer = 0;
-    aiBuyUnit();
+  if (state._aiTimer >= buyInterval) {
+    state._aiTimer = 0;
+    aiBuyUnit(state, dims);
   }
 }
 
-export function aiBuyUnit(state?: GameState, wave?: number): void {
-  state = state || game;
+export function aiBuyUnit(state: GameState, dims: CanvasDims, wave?: number): void {
   wave = wave || state.wave;
   const affordable = UNIT_ORDER.filter(t => UNIT_TYPES[t].cost <= state.enemy.gold);
   if (affordable.length === 0) return;
@@ -50,8 +47,7 @@ export function aiBuyUnit(state?: GameState, wave?: number): void {
 
   if (UNIT_TYPES[chosen].cost <= state.enemy.gold) {
     state.enemy.gold -= UNIT_TYPES[chosen].cost;
-    const u = createUnit(chosen, 'enemy', W * 0.90 + rand(-15, 15), GROUND_Y - 10 + rand(-3, 3));
+    const u = createUnit(chosen, 'enemy', dims.width * 0.90 + rand(-15, 15), dims.groundY - 10 + rand(-3, 3));
     state.enemy.units.push(u);
-    updateHUD();
   }
 }

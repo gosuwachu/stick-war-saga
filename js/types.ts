@@ -85,6 +85,16 @@ export interface PlayerState {
   units: Unit[];
 }
 
+export interface CanvasDims {
+  width: number;
+  height: number;
+  groundY: number;
+  playerZone: { x1: number; x2: number };
+  enemyZone: { x1: number; x2: number };
+  battleZone: { x1: number; x2: number };
+  noMansLand: { x1: number; x2: number };
+}
+
 export interface GameState {
   mode: Mode;
   phase: Phase;

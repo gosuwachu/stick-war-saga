@@ -1,18 +1,18 @@
 import { beforeEach, } from 'vitest'
-import type { GameState } from '../types.js'
+import { createGameState } from '../config.js'
+import type { CanvasDims } from '../types.js'
 
-export function createGameState(overrides: Partial<GameState> = {}): GameState {
-  const state: GameState = {
-    mode: 'ai', phase: 'idle', wave: 1,
-    prepTime: 25, prepTimer: 25, battleTimer: 0, transitionTimer: 0, time: 0,
-    player: { gold: 400, income: 0, units: [] },
-    enemy:  { gold: 200, income: 0, units: [] },
-    projectiles: [], particles: [], floatingTexts: [],
-    pvpRound: 1, pvpMaxRounds: 5, pvpScore: { p1: 0, p2: 0 }, pvpArmySnapshot: { player: [], enemy: [] },
-  }
-  Object.assign(state, overrides)
-  return state
-}
+export { createGameState }
+
+export const testDims: CanvasDims = {
+  width: 1000,
+  height: 600,
+  groundY: 540,
+  playerZone: { x1: 0, x2: 320 },
+  enemyZone: { x1: 680, x2: 1000 },
+  battleZone: { x1: 250, x2: 750 },
+  noMansLand: { x1: 300, x2: 700 },
+};
 
 function createMockElement(): any {
   return {

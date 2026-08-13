@@ -1,12 +1,9 @@
 import { playAttack, playDeath, playHeal } from './audio';
-import { GROUND_Y, W } from './canvas';
-import { clamp, dist, game, rand } from './config';
+import { clamp, dist, rand } from './config';
 import { endBattle } from './phases';
-import { updateHUD } from './shop';
-import type { GameState, Projectile, Unit } from './types';
+import type { CanvasDims, GameState, Projectile, Unit } from './types';
 
-export function updateEconomy(dt: number, state?: GameState): void {
-  state = state || game;
+export function updateEconomy(dt: number, state: GameState): void {
   let pIncome = 0;
   state.player.units.forEach(u => { if (u.isMiner && u.state !== 'dead' && u.state !== 'dying') pIncome += u.income; });
   let eIncome = 0;
@@ -23,17 +20,16 @@ export function updateEconomy(dt: number, state?: GameState): void {
     state.enemy.gold += eIncome * dt * 0.3;
   }
 
-  updateHUD();
 }
 
-export function updateUnits(dt: number): void {
-  const allUnits = [...game.player.units, ...game.enemy.units];
+export function updateUnits(dt: number, state: GameState, dims: CanvasDims): void {
+  const allUnits = [...state.player.units, ...state.enemy.units];
   allUnits.forEach(u => {
     if (u.state === 'dead') return;
     if (u.hp <= 0 && u.state !== 'dying') {
       u.state = 'dying';
       u.deathTimer = 0;
-      spawnFloatingText(u.x, u.y - 25, 'DEAD', '#ccc');
+      spawnFloatingText(u.x, u.y - 25, 'DEAD', '#ccc', state);
       playDeath();
     }
     u.animTime += dt;
@@ -79,8 +75,8 @@ export function updateUnits(dt: number): void {
           if (u.atkTimer <= 0) {
             u.target.hp = Math.min(u.target.maxHp, u.target.hp + u.healPower);
             u.atkTimer = u.atkCd;
-            spawnFloatingText(u.target.x, u.target.y - 15, `+${u.healPower}`, '#81c784');
-            spawnHealEffect(u.target.x, u.target.y - 10);
+            spawnFloatingText(u.target.x, u.target.y - 15, `+${u.healPower}`, '#81c784', state);
+            spawnHealEffect(u.target.x, u.target.y - 10, state);
             playHeal();
           }
         } else if (!u.isHealer && d <= u.range) {
@@ -94,8 +90,8 @@ export function updateUnits(dt: number): void {
             playAttack(u.type);
             u.atkTimer = u.atkCd;
             u.killCount++;
-            spawnFloatingText(u.target.x, u.target.y - 15, `-${Math.round(dmg)}`, '#ff8a80');
-            spawnHitEffect(u.target.x, u.target.y - 10);
+            spawnFloatingText(u.target.x, u.target.y - 15, `-${Math.round(dmg)}`, '#ff8a80', state);
+            spawnHitEffect(u.target.x, u.target.y - 10, state);
 
             if (u.splash) {
               const splashTargets = enemies.filter(o =>
@@ -104,19 +100,19 @@ export function updateUnits(dt: number): void {
               splashTargets.forEach(o => {
                 o.hp -= dmg * 0.5;
                 if (o.isMiner && o.state === 'idle') o.state = 'marching';
-                spawnFloatingText(o.x, o.y - 15, `-${Math.round(dmg*0.5)}`, '#ff8a80');
-                spawnHitEffect(o.x, o.y - 10);
+                spawnFloatingText(o.x, o.y - 15, `-${Math.round(dmg*0.5)}`, '#ff8a80', state);
+                spawnHitEffect(o.x, o.y - 10, state);
               });
             }
 
             if (u.isRanged) {
-              spawnProjectile(u, u.target);
+              spawnProjectile(u, u.target, state);
             }
 
             if (u.target.hp <= 0 && u.target.state !== 'dying') {
               u.target.state = 'dying';
               u.target.deathTimer = 0;
-              spawnFloatingText(u.target.x, u.target.y - 25, 'DEAD', '#ccc');
+              spawnFloatingText(u.target.x, u.target.y - 25, 'DEAD', '#ccc', state);
               playDeath();
             }
           }
@@ -132,7 +128,7 @@ export function updateUnits(dt: number): void {
           }
         }
       } else {
-        const targetX = u.team === 'player' ? W * 0.78 : W * 0.22;
+        const targetX = u.team === 'player' ? dims.width * 0.78 : dims.width * 0.22;
         u.x += u.dir * u.speed * dt;
         if ((u.team === 'player' && u.x > targetX) || (u.team === 'enemy' && u.x < targetX)) {
           u.x = targetX;
@@ -140,16 +136,15 @@ export function updateUnits(dt: number): void {
       }
     }
 
-    u.x = clamp(u.x, 5, W - 5);
-    u.y = clamp(u.y, GROUND_Y - 50, GROUND_Y);
+    u.x = clamp(u.x, 5, dims.width - 5);
+    u.y = clamp(u.y, dims.groundY - 50, dims.groundY);
 
     if (u.attackAnim > 0) u.attackAnim -= dt * 3;
     if (u.attackAnim < 0) u.attackAnim = 0;
   });
 }
 
-export function checkBattleEnd(state?: GameState): boolean {
-  state = state || game;
+export function checkBattleEnd(state: GameState, dims: CanvasDims): boolean {
   const pAlive = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
   const eAlive = state.enemy.units.filter(u => u.state !== 'dead' && u.state !== 'dying' && !u.isMiner).length;
   const pAll = state.player.units.filter(u => u.state !== 'dead' && u.state !== 'dying').length;
@@ -165,7 +160,7 @@ export function checkBattleEnd(state?: GameState): boolean {
       return true;
     }
     const enemyInPlayerZone = state.enemy.units.some(
-      u => !u.isMiner && u.state !== 'dead' && u.state !== 'dying' && u.x < W * 0.25
+      u => !u.isMiner && u.state !== 'dead' && u.state !== 'dying' && u.x < dims.width * 0.25
     );
     if (enemyInPlayerZone) {
       state.player.units.forEach(u => { if (u.isMiner && u.state === 'idle') u.state = 'marching'; });
@@ -181,8 +176,7 @@ export function checkBattleEnd(state?: GameState): boolean {
   return false;
 }
 
-export function spawnProjectile(source: Unit, target: Unit, state?: GameState): void {
-  state = state || game;
+export function spawnProjectile(source: Unit, target: Unit, state: GameState): void {
   state.projectiles.push({
     x: source.x + source.dir * 10,
     y: source.y - 15,
@@ -195,8 +189,7 @@ export function spawnProjectile(source: Unit, target: Unit, state?: GameState): 
   } as Projectile);
 }
 
-export function updateProjectiles(dt: number, state?: GameState): void {
-  state = state || game;
+export function updateProjectiles(dt: number, state: GameState): void {
   for (let i = state.projectiles.length - 1; i >= 0; i--) {
     const p = state.projectiles[i];
     const dx = p.targetX - p.x;
@@ -219,8 +212,7 @@ export function updateProjectiles(dt: number, state?: GameState): void {
   }
 }
 
-export function spawnHitEffect(x: number, y: number, state?: GameState): void {
-  state = state || game;
+export function spawnHitEffect(x: number, y: number, state: GameState): void {
   for (let i = 0; i < 5; i++) {
     state.particles.push({
       x, y,
@@ -234,8 +226,7 @@ export function spawnHitEffect(x: number, y: number, state?: GameState): void {
   }
 }
 
-export function spawnHealEffect(x: number, y: number, state?: GameState): void {
-  state = state || game;
+export function spawnHealEffect(x: number, y: number, state: GameState): void {
   for (let i = 0; i < 4; i++) {
     state.particles.push({
       x, y,
@@ -249,13 +240,11 @@ export function spawnHealEffect(x: number, y: number, state?: GameState): void {
   }
 }
 
-export function spawnFloatingText(x: number, y: number, text: string, color: string, state?: GameState): void {
-  state = state || game;
+export function spawnFloatingText(x: number, y: number, text: string, color: string, state: GameState): void {
   state.floatingTexts.push({ x, y, text, color, life: 1, maxLife: 1 });
 }
 
-export function updateParticles(dt: number, state?: GameState): void {
-  state = state || game;
+export function updateParticles(dt: number, state: GameState): void {
   for (let i = state.particles.length - 1; i >= 0; i--) {
     const p = state.particles[i];
     p.x += p.vx * dt;

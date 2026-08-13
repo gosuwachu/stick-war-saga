@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createUnit } from '../factory'
 import { endBattle, spawnEnemyWave } from '../phases'
-import { createGameState } from './setup'
+import { createGameState, testDims } from './setup'
 
 describe('endBattle (PvP)', () => {
   let state: ReturnType<typeof createGameState>
@@ -75,21 +75,21 @@ describe('spawnEnemyWave', () => {
   })
 
   it('gives enemy the correct starting gold for wave 1', () => {
-    spawnEnemyWave(state, 1)
+    spawnEnemyWave(state, testDims, 1)
     expect(state.enemy.gold).toBe(230)
     expect(state.enemy.units.length).toBeGreaterThanOrEqual(2)
   })
 
   it('scales enemy gold with wave number', () => {
-    spawnEnemyWave(state, 5)
+    spawnEnemyWave(state, testDims, 5)
     expect(state.enemy.gold).toBe(550)
   })
 
   it('increases enemy miner count with wave', () => {
-    spawnEnemyWave(state, 1)
+    spawnEnemyWave(state, testDims, 1)
     const miners1 = state.enemy.units.filter(u => u.isMiner).length
     state.enemy.units = []
-    spawnEnemyWave(state, 7)
+    spawnEnemyWave(state, testDims, 7)
     const miners2 = state.enemy.units.filter(u => u.isMiner).length
     expect(miners2).toBeGreaterThan(miners1)
   })

@@ -1,45 +1,43 @@
 import { updateFormationPositions } from './canvas';
-import { game, } from './config';
 import { createUnit } from './factory';
 import { updateArmyPreview, updateHUD, updateShop } from './shop';
-import type { GameState } from './types';
+import type { CanvasDims, GameState } from './types';
 
-export function startPrep(): void {
-  game.phase = 'prep';
-  game.prepTimer = game.prepTime;
+export function startPrep(state: GameState, dims: CanvasDims): void {
+  state.phase = 'prep';
+  state.prepTimer = state.prepTime;
 
-  game.player.units.forEach(u => { u.state = 'idle'; u.target = null; });
-  game.enemy.units.forEach(u => { u.state = 'idle'; u.target = null; });
-  updateFormationPositions();
-  game.player.units.forEach(u => { u.x = u.formationX; u.y = u.formationY; });
-  game.enemy.units.forEach(u => { u.x = u.formationX; u.y = u.formationY; });
+  state.player.units.forEach(u => { u.state = 'idle'; u.target = null; });
+  state.enemy.units.forEach(u => { u.state = 'idle'; u.target = null; });
+  updateFormationPositions(state, dims);
+  state.player.units.forEach(u => { u.x = u.formationX; u.y = u.formationY; });
+  state.enemy.units.forEach(u => { u.x = u.formationX; u.y = u.formationY; });
 
-  game.projectiles = [];
-  if (game.mode === 'pvp') {
-    showBanner(`ROUND ${game.pvpRound}`, `BUILD YOUR ARMY  |  ${game.pvpScore.p1}-${game.pvpScore.p2}`, '#64b5f6');
+  state.projectiles = [];
+  if (state.mode === 'pvp') {
+    showBanner(`ROUND ${state.pvpRound}`, `BUILD YOUR ARMY  |  ${state.pvpScore.p1}-${state.pvpScore.p2}`, '#64b5f6');
   } else {
-    showBanner('PREPARE', `Wave ${game.wave}  |  Buy your army!`, '#64b5f6');
+    showBanner('PREPARE', `Wave ${state.wave}  |  Buy your army!`, '#64b5f6');
   }
-  updateShop();
-  updateHUD();
+  updateShop(state);
+  updateHUD(state);
 }
 
-export function startBattle(): void {
-  if (game.mode === 'pvp') {
-    game.pvpArmySnapshot.player = structuredClone(game.player.units);
-    game.pvpArmySnapshot.enemy = structuredClone(game.enemy.units);
+export function startBattle(state: GameState): void {
+  if (state.mode === 'pvp') {
+    state.pvpArmySnapshot.player = structuredClone(state.player.units);
+    state.pvpArmySnapshot.enemy = structuredClone(state.enemy.units);
   }
-  game.phase = 'battle';
-  game.battleTimer = 0;
-  game.player.units.forEach(u => { if (!u.isMiner) u.state = 'marching'; });
-  game.enemy.units.forEach(u => { if (!u.isMiner) u.state = 'marching'; });
+  state.phase = 'battle';
+  state.battleTimer = 0;
+  state.player.units.forEach(u => { if (!u.isMiner) u.state = 'marching'; });
+  state.enemy.units.forEach(u => { if (!u.isMiner) u.state = 'marching'; });
   showBanner('BATTLE', 'Fight!', '#ff8a80');
   document.getElementById('shop-panel')!.classList.add('hidden');
-  updateHUD();
+  updateHUD(state);
 }
 
-export function endBattle(winner: string, state?: GameState): void {
-  state = state || game;
+export function endBattle(winner: string, state: GameState): void {
   state.phase = 'transition';
   state.transitionTimer = 3;
   if (state.mode === 'pvp') {
@@ -62,7 +60,7 @@ export function endBattle(winner: string, state?: GameState): void {
       showBanner('DEFEAT', 'Your army has fallen...', '#ff8a80');
     }
   }
-  updateHUD();
+  updateHUD(state);
 }
 
 export function showBanner(title: string, sub: string, color: string): void {
@@ -74,8 +72,7 @@ export function showBanner(title: string, sub: string, color: string): void {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-export function spawnEnemyWave(state?: GameState, waveOverride?: number): void {
-  state = state || game;
+export function spawnEnemyWave(state: GameState, dims: CanvasDims, waveOverride?: number): void {
   if (state.mode === 'pvp') {
     state.enemy.gold = 400;
     state.enemy.income = 0;
@@ -94,24 +91,24 @@ export function spawnEnemyWave(state?: GameState, waveOverride?: number): void {
       state.enemy.units.push(createUnit('Miner', 'enemy', 0, 0));
     }
   }
-  updateHUD();
-  startPrep();
+  updateHUD(state);
+  startPrep(state, dims);
 }
 
-export function resetPvPRound(): void {
-  game.player.income = 0;
-  game.enemy.income = 0;
-  game.projectiles = [];
-  game.particles = [];
-  game.floatingTexts = [];
-  game._aiTimer = 0;
+export function resetPvPRound(state: GameState, dims: CanvasDims): void {
+  state.player.income = 0;
+  state.enemy.income = 0;
+  state.projectiles = [];
+  state.particles = [];
+  state.floatingTexts = [];
+  state._aiTimer = 0;
 
-  game.player.units = structuredClone(game.pvpArmySnapshot.player);
-  game.enemy.units = structuredClone(game.pvpArmySnapshot.enemy);
+  state.player.units = structuredClone(state.pvpArmySnapshot.player);
+  state.enemy.units = structuredClone(state.pvpArmySnapshot.enemy);
 
   document.getElementById('shop-panel')!.classList.remove('hidden');
-  updateShop();
-  updateHUD();
-  updateArmyPreview();
-  startPrep();
+  updateShop(state);
+  updateHUD(state);
+  updateArmyPreview(state);
+  startPrep(state, dims);
 }

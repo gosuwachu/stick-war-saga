@@ -1,45 +1,47 @@
-import { GROUND_Y, getCtx, H, NO_MANS_LAND, W } from './canvas';
-import { game, rand } from './config';
-import type { Unit } from './types';
+import { getCtx } from './canvas';
+import { rand } from './config';
+import type { CanvasDims, GameState, Unit } from './types';
 
-function renderBackground(): void {
+function renderBackground(dims: CanvasDims): void {
   const ctx = getCtx();
-  const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+  const { width: W, height: H, groundY, noMansLand } = dims;
+  const sky = ctx.createLinearGradient(0, 0, 0, groundY);
   sky.addColorStop(0, '#0d1b2a');
   sky.addColorStop(0.6, '#1b2838');
   sky.addColorStop(1, '#2a3f4a');
   ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, GROUND_Y);
+  ctx.fillRect(0, 0, W, groundY);
 
-  const gnd = ctx.createLinearGradient(0, GROUND_Y, 0, H);
+  const gnd = ctx.createLinearGradient(0, groundY, 0, H);
   gnd.addColorStop(0, '#3a5a3a');
   gnd.addColorStop(0.3, '#2d4a2d');
   gnd.addColorStop(1, '#1a2a1a');
   ctx.fillStyle = gnd;
-  ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+  ctx.fillRect(0, groundY, W, H - groundY);
 
   ctx.strokeStyle = '#4a7a4a';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(0, GROUND_Y);
-  ctx.lineTo(W, GROUND_Y);
+  ctx.moveTo(0, groundY);
+  ctx.lineTo(W, groundY);
   ctx.stroke();
 
   ctx.strokeStyle = 'rgba(255,255,255,0.05)';
   ctx.lineWidth = 1;
   ctx.setLineDash([5, 10]);
   ctx.beginPath();
-  ctx.moveTo(NO_MANS_LAND.x1, 0);
-  ctx.lineTo(NO_MANS_LAND.x1, GROUND_Y);
-  ctx.moveTo(NO_MANS_LAND.x2, 0);
-  ctx.lineTo(NO_MANS_LAND.x2, GROUND_Y);
+  ctx.moveTo(noMansLand.x1, 0);
+  ctx.lineTo(noMansLand.x1, groundY);
+  ctx.moveTo(noMansLand.x2, 0);
+  ctx.lineTo(noMansLand.x2, groundY);
   ctx.stroke();
   ctx.setLineDash([]);
 }
 
-function renderMinerals(): void {
+function renderMinerals(dims: CanvasDims): void {
   const ctx = getCtx();
-  const veinY = GROUND_Y - 5;
+  const { width: W, groundY } = dims;
+  const veinY = groundY - 5;
 
   ctx.fillStyle = 'rgba(255, 215, 0, 0.15)';
   ctx.beginPath();
@@ -135,7 +137,6 @@ function drawUnit(u: Unit): void {
   ctx.stroke();
 
   const atk = u.attackAnim;
-  const armSwing = u.state === 'marching' ? Math.sin(u.animTime * 8) * 3 * s : 0;
   ctx.lineWidth = 2 * s;
 
   if (u.type === 'Miner') {
@@ -194,7 +195,6 @@ function drawUnit(u: Unit): void {
     ctx.lineTo(8 * s - 3 * s - pull, -bodyLen * 0.5 - 2 * s);
     ctx.stroke();
   } else if (u.type === 'Spearman') {
-    const spearTilt = atk > 0 ? -0.3 : 0.2;
     ctx.strokeStyle = '#8D6E63';
     ctx.lineWidth = 2 * s;
     ctx.beginPath();
@@ -293,9 +293,9 @@ function drawUnit(u: Unit): void {
   }
 }
 
-function renderProjectiles(): void {
+function renderProjectiles(state: GameState): void {
   const ctx = getCtx();
-  game.projectiles.forEach(p => {
+  state.projectiles.forEach(p => {
     if (p.type === 'arrow') {
       ctx.strokeStyle = '#8D6E63';
       ctx.lineWidth = 2;
@@ -311,7 +311,7 @@ function renderProjectiles(): void {
       ctx.closePath();
       ctx.fill();
     } else {
-      ctx.fillStyle = `rgba(66, 165, 245, ${0.7 + Math.sin(game.time * 10) * 0.2})`;
+      ctx.fillStyle = `rgba(66, 165, 245, ${0.7 + Math.sin(state.time * 10) * 0.2})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
       ctx.fill();
@@ -323,9 +323,9 @@ function renderProjectiles(): void {
   });
 }
 
-function renderParticles(): void {
+function renderParticles(state: GameState): void {
   const ctx = getCtx();
-  game.particles.forEach(p => {
+  state.particles.forEach(p => {
     ctx.globalAlpha = p.life / p.maxLife;
     ctx.fillStyle = p.color;
     ctx.beginPath();
@@ -334,7 +334,7 @@ function renderParticles(): void {
   });
   ctx.globalAlpha = 1;
 
-  game.floatingTexts.forEach(f => {
+  state.floatingTexts.forEach(f => {
     ctx.globalAlpha = f.life;
     ctx.fillStyle = f.color;
     ctx.font = 'bold 12px Arial';
@@ -344,16 +344,16 @@ function renderParticles(): void {
   ctx.globalAlpha = 1;
 }
 
-export function render(): void {
+export function render(state: GameState, dims: CanvasDims): void {
   const ctx = getCtx();
-  ctx.clearRect(0, 0, W, H);
-  renderBackground();
-  renderMinerals();
+  ctx.clearRect(0, 0, dims.width, dims.height);
+  renderBackground(dims);
+  renderMinerals(dims);
 
-  const allUnits = [...game.player.units, ...game.enemy.units];
+  const allUnits = [...state.player.units, ...state.enemy.units];
   allUnits.sort((a, b) => a.y - b.y);
   allUnits.forEach(drawUnit);
 
-  renderProjectiles();
-  renderParticles();
+  renderProjectiles(state);
+  renderParticles(state);
 }
