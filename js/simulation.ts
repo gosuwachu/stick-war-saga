@@ -82,6 +82,7 @@ export function updateUnits(dt: number): void {
             u.attackAnim = 1;
             const dmg = u.dmg + rand(-2, 2);
             u.target.hp -= dmg;
+            if (u.target.isMiner && u.target.state === 'idle') u.target.state = 'marching';
             u.atkTimer = u.atkCd;
             u.killCount++;
             spawnFloatingText(u.target.x, u.target.y - 15, `-${Math.round(dmg)}`, '#ff8a80');
@@ -93,6 +94,7 @@ export function updateUnits(dt: number): void {
               );
               splashTargets.forEach(o => {
                 o.hp -= dmg * 0.5;
+                if (o.isMiner && o.state === 'idle') o.state = 'marching';
                 spawnFloatingText(o.x, o.y - 15, `-${Math.round(dmg*0.5)}`, '#ff8a80');
                 spawnHitEffect(o.x, o.y - 10);
               });
