@@ -102,6 +102,8 @@ function startGame(mode: 'ai' | 'pvp'): void {
 
   document.getElementById('shop-panel')!.classList.remove('hidden');
   spawnEnemyWave();
+  game.pvpArmySnapshot.player = structuredClone(game.player.units);
+  game.pvpArmySnapshot.enemy = structuredClone(game.enemy.units);
   updateShop();
   updateHUD();
   updateArmyPreview();

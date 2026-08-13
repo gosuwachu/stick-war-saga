@@ -34,6 +34,7 @@ export const game: GameState = {
   pvpRound: 1,
   pvpMaxRounds: 5,
   pvpScore: { p1: 0, p2: 0 },
+  pvpArmySnapshot: { player: [], enemy: [] },
 };
 
 export function lerp(a: number, b: number, t: number): number { return a + (b - a) * t; }

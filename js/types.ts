@@ -102,6 +102,7 @@ export interface GameState {
   pvpRound: number;
   pvpMaxRounds: number;
   pvpScore: { p1: number; p2: number };
+  pvpArmySnapshot: { player: Unit[]; enemy: Unit[] };
   _aiTimer?: number;
   _lastTime?: number;
 }

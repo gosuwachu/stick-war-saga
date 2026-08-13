@@ -25,6 +25,10 @@ export function startPrep(): void {
 }
 
 export function startBattle(): void {
+  if (game.mode === 'pvp') {
+    game.pvpArmySnapshot.player = structuredClone(game.player.units);
+    game.pvpArmySnapshot.enemy = structuredClone(game.enemy.units);
+  }
   game.phase = 'battle';
   game.battleTimer = 0;
   game.player.units.forEach(u => { if (!u.isMiner) u.state = 'marching'; });
@@ -99,17 +103,13 @@ export function resetPvPRound(): void {
   game.enemy.gold = 400;
   game.player.income = 0;
   game.enemy.income = 0;
-  game.player.units = [];
-  game.enemy.units = [];
   game.projectiles = [];
   game.particles = [];
   game.floatingTexts = [];
   game._aiTimer = 0;
 
-  for (let i = 0; i < 3; i++) {
-    game.player.units.push(createUnit('Miner', 'player', 0, 0));
-    game.enemy.units.push(createUnit('Miner', 'enemy', 0, 0));
-  }
+  game.player.units = structuredClone(game.pvpArmySnapshot.player);
+  game.enemy.units = structuredClone(game.pvpArmySnapshot.enemy);
 
   document.getElementById('shop-panel')!.classList.remove('hidden');
   updateShop();

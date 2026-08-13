@@ -8,7 +8,7 @@ export function createGameState(overrides: Partial<GameState> = {}): GameState {
     player: { gold: 400, income: 0, units: [] },
     enemy:  { gold: 200, income: 0, units: [] },
     projectiles: [], particles: [], floatingTexts: [],
-    pvpRound: 1, pvpMaxRounds: 5, pvpScore: { p1: 0, p2: 0 },
+    pvpRound: 1, pvpMaxRounds: 5, pvpScore: { p1: 0, p2: 0 }, pvpArmySnapshot: { player: [], enemy: [] },
   }
   Object.assign(state, overrides)
   return state
