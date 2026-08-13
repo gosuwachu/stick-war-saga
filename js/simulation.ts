@@ -1,3 +1,4 @@
+import { playAttack, playDeath, playHeal } from './audio';
 import { GROUND_Y, W } from './canvas';
 import { clamp, dist, game, rand } from './config';
 import { endBattle } from './phases';
@@ -74,6 +75,7 @@ export function updateUnits(dt: number): void {
             u.atkTimer = u.atkCd;
             spawnFloatingText(u.target.x, u.target.y - 15, `+${u.healPower}`, '#81c784');
             spawnHealEffect(u.target.x, u.target.y - 10);
+            playHeal();
           }
         } else if (!u.isHealer && d <= u.range) {
           u.state = 'attacking';
@@ -83,6 +85,7 @@ export function updateUnits(dt: number): void {
             const dmg = u.dmg + rand(-2, 2);
             u.target.hp -= dmg;
             if (u.target.isMiner && u.target.state === 'idle') u.target.state = 'marching';
+            playAttack(u.type);
             u.atkTimer = u.atkCd;
             u.killCount++;
             spawnFloatingText(u.target.x, u.target.y - 15, `-${Math.round(dmg)}`, '#ff8a80');
@@ -108,6 +111,7 @@ export function updateUnits(dt: number): void {
               u.target.state = 'dying';
               u.target.deathTimer = 0;
               spawnFloatingText(u.target.x, u.target.y - 25, 'DEAD', '#ccc');
+              playDeath();
             }
           }
         } else {
